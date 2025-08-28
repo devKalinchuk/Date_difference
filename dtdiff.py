@@ -10,7 +10,7 @@ def datediff(first: str|None = None, second: str|None = None) -> str:
             return f'{today.strftime("%d.%m.%Y")}'
         elif first == 'today':
             first = today
-        elif first.isdigit():
+        elif first.isdigit() or (first.startswith('-') and first[1:].isdigit()):
             result = today + dt.timedelta(days=int(first))
             return result.strftime('%d.%m.%Y')
         else:
@@ -23,7 +23,7 @@ def datediff(first: str|None = None, second: str|None = None) -> str:
             return show_days(diff)
         elif second == 'today':
             second = today
-        elif second.isdigit():
+        elif second.isdigit() or (second.startswith('-') and second[1:].isdigit()):
             result = first + dt.timedelta(days=int(second))
             return result.strftime('%d.%m.%Y')
         else:
@@ -35,10 +35,9 @@ def datediff(first: str|None = None, second: str|None = None) -> str:
             'Неправильний формат. Використовуйте: '
             'DD.MM, DD.MM.YYYY, "today" або число (дні).'
         )
-    if first == 'today' or second == 'today':
-        diff = (second - first).days + 1
-    else:
-        diff = (second - first).days
+    diff = (second - first).days
+    if first == today or second == today:
+        diff += 1
     return show_days(diff)
 
 def show_days(diff: int) -> str:
