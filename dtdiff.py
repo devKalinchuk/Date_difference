@@ -6,15 +6,15 @@ import argparse
 TODAY = dt.date.today()
 
 
-def parse_date(date_str: str) -> dt.date | int:
-    """Перетворює вхідний рядок на дату або число - кількість днів"""
+def parse_date_or_days(date_str: str) -> dt.date | int:
+    """Перетворює вхідний рядок на дату або на число (кількість днів)"""
     if date_str.isdigit() or (date_str.startswith('-') and date_str[1:].isdigit()):
         return int(date_str)
     elif '.' in date_str:
-        if len(date_str.split('.')) == 2:
-            date_str += '.' + str(TODAY.year)
-            return dt.datetime.strptime(date_str, '%d.%m.%Y').date()
-        elif len(date_str.split('.')) == 3:
+        parts = date_str.split('.')
+        if len(parts) in (2, 3):
+            if len(parts) == 2:
+                date_str += '.' + str(TODAY.year)
             return dt.datetime.strptime(date_str, '%d.%m.%Y').date()
         else:
             raise ValueError('Неправильний формат дати. Використовуйте: DD.MM або DD.MM.YYYY')
@@ -23,12 +23,12 @@ def parse_date(date_str: str) -> dt.date | int:
         'DD.MM, DD.MM.YYYY або число (кількість днів).')
 
 
-def parse_arguments(argv: list):
+def parse_arguments(argv: list) -> tuple[dt.date, dt.date | int]:
     """Парсить аргументи командного рядка"""
     if len(argv) == 2:
-        return parse_date(argv[0]), parse_date(argv[1])
+        return parse_date_or_days(argv[0]), parse_date_or_days(argv[1])
     elif len(argv) == 1:
-        return TODAY, parse_date(argv[0])
+        return TODAY, parse_date_or_days(argv[0])
     else:
         raise ValueError('Некоректна кількість аргументів')
 
@@ -61,14 +61,14 @@ def arg_parser():
     parser.add_argument('dates',
                         type=str,
                         nargs='*',
-                        help='Дата у форматі DD.MM або DD.MM.YYYY, "today", або кількість днів (ціле число).')
+                        help='Одна чи дві дати у форматі DD.MM або DD.MM.YYYY або кількість днів (ціле число).')
     return parser.parse_args()
 
 
-def main(first, second):
+def main(first: dt.date, second: dt.date | int) -> str:
     if isinstance(second, int):
         result_date = add_days(first, second)
-        return f'{result_date.strftime('%d.%m.%Y')}'
+        return result_date.strftime("%d.%m.%Y")
     else:
         diff = date_difference(first, second)
         return diff
@@ -79,4 +79,4 @@ if __name__ == '__main__':
         first, second = parse_arguments(args.dates)
         print(main(first, second))
     except Exception as e:
-        print(f'Виникла помилка: {e}')
+        print(f'Помилка: {e}')
