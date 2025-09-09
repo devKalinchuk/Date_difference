@@ -23,7 +23,7 @@ def parse_date_or_days(date_str: str) -> dt.date | int:
         'DD.MM, DD.MM.YYYY або число (кількість днів).')
 
 
-def parse_arguments(argv: list) -> tuple[dt.date, dt.date | int]:
+def parse_arguments(argv: list[str]) -> tuple[dt.date, dt.date | int]:
     """Парсить аргументи командного рядка"""
     if len(argv) == 2:
         return parse_date_or_days(argv[0]), parse_date_or_days(argv[1])
@@ -39,9 +39,10 @@ def date_difference(date1: dt.date, date2: dt.date) -> str:
     return show_days(difference)
 
 
-def add_days(date: dt.date, days: int) -> dt.date:
+def add_days(date: dt.date, days: int) -> str:
     """Додає певну кількість днів до дати"""
-    return date + dt.timedelta(days=days)
+    result_date = date + dt.timedelta(days=days)
+    return result_date.strftime("%d.%m.%Y")
 
 
 def show_days(diff: int) -> str:
@@ -65,18 +66,13 @@ def arg_parser():
     return parser.parse_args()
 
 
-def main(first: dt.date, second: dt.date | int) -> str:
-    if isinstance(second, int):
-        result_date = add_days(first, second)
-        return result_date.strftime("%d.%m.%Y")
-    else:
-        diff = date_difference(first, second)
-        return diff
-
 if __name__ == '__main__':
     try:
         args = arg_parser()
         first, second = parse_arguments(args.dates)
-        print(main(first, second))
+        if isinstance(second, int):
+            print(add_days(first, second))
+        else:
+            print(date_difference(first, second))
     except Exception as e:
         print(f'Помилка: {e}')
